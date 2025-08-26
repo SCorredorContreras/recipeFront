@@ -19,27 +19,36 @@ export class RecipeService {
     }
   }
 
-  async createRecipe(recipe: CreateRecipeRequest): Promise<Recipe> {
+ async createRecipe(recipe: CreateRecipeRequest): Promise<Recipe> {
     try {
-      const response = await fetch(`${API_BASE_URL}/recipes`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(recipe),
-      });
+        const payload = {
+            "nombre_receta": recipe.recipeName,
+            "porciones_receta": recipe.servings,
+            "ingredientes_receta": recipe.ingredients,
+            "preparacion_receta": recipe.preparation,
+            "tiempo_preparacion": recipe.preparationTime,
+            "categoria_receta": recipe.category,
+        };
 
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
+        const response = await fetch(`${API_BASE_URL}/recipes`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload), // Envía el objeto con los nombres corregidos
+        });
 
-      const data = await response.json();
-      return data;
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
     } catch (error) {
-      console.error("Error creating recipe:", error);
-      throw error;
+        console.error("Error creating recipe:", error);
+        throw error;
     }
-  }
+}
 
   async updateRecipe(recipe: Recipe): Promise<Recipe> {
     const id = (recipe as any).id ?? (recipe as any).recipeId;
