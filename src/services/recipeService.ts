@@ -1,6 +1,7 @@
 import { Recipe, CreateRecipeRequest } from "../types/recipe";
 
-const API_BASE_URL = "https://jpmxhxeaoaroogppqxsa.supabase.co/functions/v1/recipe-api";
+const API_BASE_URL =
+  "https://jpmxhxeaoaroogppqxsa.supabase.co/functions/v1/recipe-api";
 
 export class RecipeService {
   async getAllRecipes(): Promise<Recipe[]> {
@@ -19,36 +20,36 @@ export class RecipeService {
     }
   }
 
- async createRecipe(recipe: CreateRecipeRequest): Promise<Recipe> {
+  async createRecipe(recipe: CreateRecipeRequest): Promise<Recipe> {
     try {
-        const payload = {
-            "nombre_receta": recipe.recipeName,
-            "porciones_receta": recipe.servings,
-            "ingredientes_receta": recipe.ingredients,
-            "preparacion_receta": recipe.preparation,
-            "tiempo_preparacion": recipe.preparationTime,
-            "categoria_receta": recipe.category,
-        };
+      const payload = {
+        nombre_receta: recipe.recipeName,
+        porciones_receta: recipe.servings,
+        ingredientes_receta: recipe.ingredients,
+        preparacion_receta: recipe.preparation,
+        tiempo_preparacion: recipe.preparationTime,
+        categoria_receta: recipe.category,
+      };
 
-        const response = await fetch(`${API_BASE_URL}/recipes`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload), // Envía el objeto con los nombres corregidos
-        });
+      const response = await fetch(`${API_BASE_URL}/recipes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload), // Envía el objeto con los nombres corregidos
+      });
 
-        if (!response.ok) {
-            throw new Error(`Error: ${response.status}`);
-        }
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
 
-        const data = await response.json();
-        return data;
+      const data = await response.json();
+      return data;
     } catch (error) {
-        console.error("Error creating recipe:", error);
-        throw error;
+      console.error("Error creating recipe:", error);
+      throw error;
     }
-}
+  }
 
   async updateRecipe(recipe: Recipe): Promise<Recipe> {
     const id = (recipe as any).id ?? (recipe as any).recipeId;
