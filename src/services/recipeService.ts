@@ -23,50 +23,51 @@ export class RecipeService {
 
   // en RecipeService.ts
 
-  async createRecipe(recipe: CreateRecipeRequest): Promise<Recipe> {
-    try {
-      const payload = {
-        nombre_receta: recipe.recipeName,
-        porciones_receta: recipe.servings,
-        ingredientes_receta: recipe.ingredients,
-        preparacion_receta: recipe.preparation,
-        tiempo_preparacion: recipe.preparationTime,
-        categoria_receta: recipe.category,
-      };
+async createRecipe(recipe: CreateRecipeRequest): Promise<Recipe> {
+  try {
+    const payload = {
+      "nombre_receta": recipe.recipeName,
+      "porciones_receta": recipe.servings,
+      "ingredientes_receta": recipe.ingredients,
+      "preparacion_receta": recipe.preparation,
+      "tiempo_preparacion": recipe.preparationTime,
+      "categoria_receta": recipe.category,
+    };
 
-      const response = await fetch(`${API_BASE_URL}/recipes`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+    const response = await fetch(`${API_BASE_URL}/recipes`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
 
-      if (!response.ok) {
-        const errorBody = await response.json();
-        console.error("Error creating recipe:", errorBody.error);
-        throw new Error(`Error: ${response.status}`);
-      }
-
-      // La respuesta del backend es un arreglo, por lo que necesitas el primer elemento
-      const data = await response.json();
-
-      const createdRecipe = {
-        recipeId: data[0].cod_receta,
-        recipeName: data[0].nombre_receta,
-        servings: data[0].porciones_receta,
-        ingredients: data[0].ingredientes_receta,
-        preparation: data[0].preparacion_receta,
-        preparationTime: data[0].tiempo_preparacion,
-        category: data[0].categoria_receta,
-      };
-
-      return createdRecipe;
-    } catch (error) {
-      console.error("Error saving recipe:", error);
-      throw error;
+    if (!response.ok) {
+      const errorBody = await response.json();
+      console.error("Error creating recipe:", errorBody.error);
+      throw new Error(`Error: ${response.status}`);
     }
+
+    const data = await response.json();
+    
+    // Si la API devuelve un objeto, usa ese objeto directamente.
+    // Mapea la respuesta a tu objeto de entidad de manera segura
+    const createdRecipe: Recipe = {
+      recipeId: data.cod_receta,
+      recipeName: data.nombre_receta,
+      servings: data.porciones_receta,
+      ingredients: data.ingredientes_receta,
+      preparation: data.preparacion_receta,
+      preparationTime: data.tiempo_preparacion,
+      category: data.categoria_receta,
+    };
+
+    return createdRecipe;
+  } catch (error) {
+    console.error("Error saving recipe:", error);
+    throw error;
   }
+}
 
   async updateRecipe(recipe: Recipe): Promise<Recipe> {
     const id = (recipe as any).id ?? (recipe as any).recipeId;
