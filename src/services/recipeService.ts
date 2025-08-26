@@ -19,37 +19,40 @@ export class RecipeService {
       throw error;
     }
   }
+async createRecipe(recipe: CreateRecipeRequest): Promise<Recipe> {
+  try {
+    const payload = {
+      "nombre_receta": recipe.recipeName,
+      "porciones_receta": recipe.servings,
+      "ingredientes_receta": recipe.ingredients,
+      "preparacion_receta": recipe.preparation,
+      "tiempo_preparacion": recipe.preparationTime,
+      "categoria_receta": recipe.category,
+    };
 
-  async createRecipe(recipe: CreateRecipeRequest): Promise<Recipe> {
-    try {
-      const payload = {
-        nombre_receta: recipe.recipeName,
-        porciones_receta: recipe.servings,
-        ingredientes_receta: recipe.ingredients,
-        preparacion_receta: recipe.preparation,
-        tiempo_preparacion: recipe.preparationTime,
-        categoria_receta: recipe.category,
-      };
+    const response = await fetch(`${API_BASE_URL}/recipes`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
 
-      const response = await fetch(`${API_BASE_URL}/recipes`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload), // Envía el objeto con los nombres corregidos
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Error creating recipe:", error);
-      throw error;
+    // Check for a successful response (status code 200-299)
+    if (!response.ok) {
+      const errorBody = await response.json();
+      console.error("Error creating recipe:", errorBody.error);
+      throw new Error(`Error: ${response.status}`);
     }
+
+    // Parse the JSON response from the server and return it
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error saving recipe:", error);
+    throw error;
   }
+}
 
 async updateRecipe(recipe: Recipe): Promise<Recipe> {
   const id = (recipe as any).id ?? (recipe as any).recipeId;
