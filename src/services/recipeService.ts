@@ -19,73 +19,83 @@ export class RecipeService {
       throw error;
     }
   }
-async createRecipe(recipe: CreateRecipeRequest): Promise<Recipe> {
-  try {
+  async createRecipe(recipe: CreateRecipeRequest): Promise<Recipe> {
+    try {
+      const payload = {
+        nombre_receta: recipe.recipeName,
+        porciones_receta: recipe.servings,
+        ingredientes_receta: recipe.ingredients,
+        preparacion_receta: recipe.preparation,
+        tiempo_preparacion: recipe.preparationTime,
+        categoria_receta: recipe.category,
+      };
+
+      const response = await fetch(`${API_BASE_URL}/recipes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.json();
+        console.error("Error creating recipe:", errorBody.error);
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Mapea la respuesta del servidor a tu objeto de entidad
+      const createdRecipe: Recipe = {
+        recipeId: data[0].cod_receta,
+        recipeName: data[0].nombre_receta,
+        servings: data[0].porciones_receta,
+        ingredients: data[0].ingredientes_receta,
+        preparation: data[0].preparacion_receta,
+        preparationTime: data[0].tiempo_preparacion,
+        category: data[0].categoria_receta,
+      };
+
+      return createdRecipe;
+    } catch (error) {
+      console.error("Error saving recipe:", error);
+      throw error;
+    }
+  }
+
+  async updateRecipe(recipe: Recipe): Promise<Recipe> {
+    const id = (recipe as any).id ?? (recipe as any).recipeId;
+    if (!id) throw new Error("Recipe id is required to update");
+
     const payload = {
-      "nombre_receta": recipe.recipeName,
-      "porciones_receta": recipe.servings,
-      "ingredientes_receta": recipe.ingredients,
-      "preparacion_receta": recipe.preparation,
-      "tiempo_preparacion": recipe.preparationTime,
-      "categoria_receta": recipe.category,
+      nombre_receta: recipe.recipeName,
+      porciones_receta: recipe.servings,
+      ingredientes_receta: recipe.ingredients,
+      preparacion_receta: recipe.preparation,
+      tiempo_preparacion: recipe.preparationTime,
+      categoria_receta: recipe.category,
     };
 
-    const response = await fetch(`${API_BASE_URL}/recipes`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const res = await fetch(`${API_BASE_URL}/recipes/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    // Check for a successful response (status code 200-299)
-    if (!response.ok) {
-      const errorBody = await response.json();
-      console.error("Error creating recipe:", errorBody.error);
-      throw new Error(`Error: ${response.status}`);
+      if (!res.ok) {
+        const errorBody = await res.json();
+        console.error("Error updating recipe:", errorBody.error);
+        throw new Error(`Error: ${res.status}`);
+      }
+      const data = await res.json();
+      return data;
+    } catch (error) {
+      console.error("Failed to fetch:", error);
+      throw error;
     }
-
-    // Parse the JSON response from the server and return it
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error saving recipe:", error);
-    throw error;
   }
-}
-
-async updateRecipe(recipe: Recipe): Promise<Recipe> {
-  const id = (recipe as any).id ?? (recipe as any).recipeId;
-  if (!id) throw new Error("Recipe id is required to update");
-
-  const payload = {
-    "nombre_receta": recipe.recipeName,
-    "porciones_receta": recipe.servings,
-    "ingredientes_receta": recipe.ingredients,
-    "preparacion_receta": recipe.preparation,
-    "tiempo_preparacion": recipe.preparationTime,
-    "categoria_receta": recipe.category,
-  };
-
-  try {
-    const res = await fetch(`${API_BASE_URL}/recipes/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      const errorBody = await res.json();
-      console.error("Error updating recipe:", errorBody.error);
-      throw new Error(`Error: ${res.status}`);
-    }
-    const data = await res.json();
-    return data;
-  } catch (error) {
-    console.error("Failed to fetch:", error);
-    throw error;
-  }
-}
 
   async deleteRecipe(id: number): Promise<void> {
     try {
