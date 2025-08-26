@@ -48,7 +48,7 @@ export class RecipeService {
     const payload: any = { ...recipe, recipeId: id };
     delete payload.id;
 
-    const res = await fetch(`${API_BASE_URL}/recipes`, {
+    const res = await fetch(`${API_BASE_URL}/recipes/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
